@@ -18,16 +18,41 @@
             margin-right: auto;
             margin-left: auto;
         }
+        .table {
+            margin-top: 20px;
+        }
+        .selecionado {
+            background-color: yellow;
+        }
+        .negrito {
+            font-weight: bold;
+        }
     </style>
 
     <script>
         angular.module('listaTelefonica', []);
         angular.module('listaTelefonica').controller('listaTelefonicaCtrl', ($scope) => {
             $scope.app = "Lista Telefonica";
-            $scope.contatos = [];
+            $scope.contatos = [
+                {nome: 'Oi', telefone: 999-8888, categoria: 'TIM'}
+            ];
+
             $scope.adicionarContato = (dadosContato) => {
                 $scope.contatos.push(angular.copy(dadosContato));
                 delete $scope.dadosContato;
+            };
+
+            $scope.apagarContatos = (contatos) => {
+                $scope.contatos = contatos.filter((dadosContato) => {
+                    if (!dadosContato.selecionado) return dadosContato
+                });
+                console.log($scope.contatos);
+            };
+
+            $scope.isContatoSelecionado = (dadosContato) =>{
+               return dadosContato.some((contato) => {
+                    return contato.selecionado;
+                });
             };
 
             $scope.operadoras = [
@@ -43,13 +68,16 @@
 <body ng-controller="listaTelefonicaCtrl">
     <div class="jumbotron">
         <h4 ng-bind='app'></h4>
+        {{contatos}}
         <table class="table table-striped">
             <tr>
+                <th></th>
                 <th>Nome</th>
                 <th>Telefone</th>
                 <th>Operadora</th>
             </tr>
-            <tr ng-repeat="dadosContato in contatos">
+            <tr ng-class="{selecionado: dadosContato.selecionado}" ng-repeat="dadosContato in contatos">
+                <td><input type="checkbox" ng-model="dadosContato.selecionado"/></td>
                 <td>{{dadosContato.nome}}</td>
                 <td>{{dadosContato.telefone}}</td>
                 <td>{{dadosContato.operadora.nome}}</td>
@@ -63,6 +91,7 @@
             <option value="">Selecione uma operadora</option>
         </select>
         <button ng-click="adicionarContato(dadosContato)" ng-disabled="!dadosContato.nome || !dadosContato.telefone" class="btn btn-primary btn-block">Adicionar</button>
+        <button ng-click="apagarContatos(contatos)"  ng-disabled="!isContatoSelecionado(contatos)" class="btn btn-danger btn-block">Excluir</button>
     </div>
 </body>
 </html>
