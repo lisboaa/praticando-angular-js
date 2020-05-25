@@ -24,14 +24,19 @@
         angular.module('listaTelefonica', []);
         angular.module('listaTelefonica').controller('listaTelefonicaCtrl', ($scope) => {
             $scope.app = "Lista Telefonica";
-            $scope.contatos = [
-                {nome: 'Douglas', telefone: '99999999'},
-                {nome: 'Fernando', telefone: '99999999'},
-                {nome: 'Lisboa', telefone: '99999999'}
-            ];
+            $scope.contatos = [];
             $scope.adicionarContato = (dadosContato) => {
                 $scope.contatos.push(angular.copy(dadosContato));
+                delete $scope.dadosContato;
             };
+
+            $scope.operadoras = [
+                {nome: 'Oi', codigo: 14, categoria: "Celular"},
+                {nome: 'Vivo', codigo: 15, categoria: "Celular"},
+                {nome: 'Tim', codigo: 41, categoria: "Celular"},
+                {nome: 'GVT', codigo: 25, categoria: "Fixo"},
+                {nome: 'Embratel', codigo: 21, categoria: "Fixo"}
+            ];
         });
     </script>
 </head>
@@ -42,16 +47,22 @@
             <tr>
                 <th>Nome</th>
                 <th>Telefone</th>
+                <th>Operadora</th>
             </tr>
             <tr ng-repeat="dadosContato in contatos">
                 <td>{{dadosContato.nome}}</td>
                 <td>{{dadosContato.telefone}}</td>
+                <td>{{dadosContato.operadora.nome}}</td>
             </tr>
         </table>
         <hr/>
+        {{dadosContato}}
         <input class="form-control" type="text" ng-model="dadosContato.nome"/>
         <input class="form-control" type="text" ng-model="dadosContato.telefone"/>
-        <button ng-click="adicionarContato(dadosContato)" class="btn btn-primary btn-block">Adicionar</button>
+        <select class="form-control" ng-model="dadosContato.operadora" ng-options="operadora.nome group by operadora.categoria for operadora in operadoras">
+            <option value="">Selecione uma operadora</option>
+        </select>
+        <button ng-click="adicionarContato(dadosContato)" ng-disabled="!dadosContato.nome || !dadosContato.telefone" class="btn btn-primary btn-block">Adicionar</button>
     </div>
 </body>
 </html>
