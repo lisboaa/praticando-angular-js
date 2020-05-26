@@ -31,7 +31,7 @@
 
     <script>
         angular.module('listaTelefonica', []);
-        angular.module('listaTelefonica').controller('listaTelefonicaCtrl', ($scope) => {
+        angular.module('listaTelefonica').controller('listaTelefonicaCtrl', ($scope, $http) => {
             $scope.app = "";
             $scope.contatos = [
                 {
@@ -73,6 +73,11 @@
                 });
             };
 
+            $scope.ordernarPor = (campo) => {
+                $scope.criterioDeOrdenacao = campo;
+                $scope.direcaoDaOrdenacao = !$scope.direcaoDaOrdenacao;
+            };
+
             $scope.operadoras = [
                 {nome: 'Oi', codigo: 14, categoria: "Celular"},
                 {nome: 'Vivo', codigo: 15, categoria: "Celular"},
@@ -80,6 +85,19 @@
                 {nome: 'GVT', codigo: 25, categoria: "Fixo"},
                 {nome: 'Embratel', codigo: 21, categoria: "Fixo"}
             ];
+
+            const dadoFormulario = () => {
+                $http.get('http://localhost:9004/').then((response) => {
+                    const dados = response.data;
+
+                    if (!dados.success) {
+                        alert(dados.message);
+                        return;
+                    }
+                    $scope.contatos = dados.data;
+                });
+            };
+            dadoFormulario();
         });
     </script>
 </head>
@@ -90,12 +108,12 @@
         <table class="table table-striped">
             <tr>
                 <th></th>
-                <th>Nome</th>
-                <th>Telefone</th>
+                <th><a href="" ng-click="ordenarPor('nome')">Nome</a></th>
+                <th><a href="" ng-click="ordenarPor('telefone')">Telefone</a></th>
                 <th>Operadora</th>
                 <th>Data</th>
             </tr>
-            <tr ng-class="{selecionado: dadosContato.selecionado}" ng-repeat="dadosContato in contatos | filter:{nome: criterioDeBusca}">
+            <tr ng-class="{selecionado: dadosContato.selecionado}" ng-repeat="dadosContato in contatos | filter:{nome: criterioDeBusca} | orderBy:criterioDeOrdenacao:direcaoDaOrdenacao">
                 <td><input type="checkbox" ng-model="dadosContato.selecionado"/></td>
                 <td>{{dadosContato.nome | uppercase}}</td>
                 <td>{{dadosContato.telefone}}</td>
@@ -108,7 +126,7 @@
             <input class="form-control" type="text" ng-model="dadosContato.nome" name="nome" placeholder="Nome" ng-required="true"/>
             <input class="form-control" type="text" ng-model="dadosContato.telefone" name="telefone" placeholder="Telefone"
                    ng-required="true" ng-pattern="/^\([1-9]{2}\)[0-9]{4,5}-[0-9]{4}$/"/>
-            <select class="form-control" ng-model="dadosContato.operadora" ng-options="operadora.nome group by operadora.categoria for operadora in operadoras">
+            <select class="form-control" ng-model="dadosContato.operadora" ng-options="operadora.nome group by operadora.categoria for operadora in operadoras | orderBy:'nome'">
                 <option value="">Selecione uma operadora</option>
             </select>
         </form>
